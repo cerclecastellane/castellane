@@ -16051,10 +16051,12 @@ create table if not exists public.accesos_red (
   nombre text not null default '',
   red text not null default '',
   estado text not null default 'pendiente' check (estado in ('pendiente','aprobado','rechazado')),
-  rol text not null default 'lectura' check (rol in ('alumno','lectura')),
+  rol text not null default 'lectura' check (rol in ('admin','alumno','lectura')),
   creado timestamptz not null default now(),
   decidido timestamptz,
   caduca timestamptz);
+alter table public.accesos_red drop constraint if exists accesos_red_rol_check;
+alter table public.accesos_red add constraint accesos_red_rol_check check (rol in ('admin','alumno','lectura'));
 alter table public.accesos_red enable row level security;
 create or replace function public.red_pedir(p_id text, p_nombre text, p_red text) returns boolean language plpgsql security definer set search_path=public as $$
 begin
@@ -16075,7 +16077,7 @@ create or replace function public.red_listar(p_red text) returns table(id text, 
 create or replace function public.red_decidir(p_id text, p_ok boolean, p_rol text default 'lectura') returns void language plpgsql security definer set search_path=public as $$
 begin
   if not public.es_admin() then return; end if;
-  update public.accesos_red set estado = case when coalesce(p_ok,false) then 'aprobado' else 'rechazado' end, rol = case when p_rol = 'alumno' then 'alumno' else 'lectura' end, decidido = now(), caduca = case when coalesce(p_ok,false) then now() + interval '30 days' else null end where id = p_id;
+  update public.accesos_red set estado = case when coalesce(p_ok,false) then 'aprobado' else 'rechazado' end, rol = case when p_rol in ('admin','alumno') then p_rol else 'lectura' end, decidido = now(), caduca = case when coalesce(p_ok,false) then now() + interval '30 days' else null end where id = p_id;
   if not coalesce(p_ok,false) then
     begin update public.dispositivos set cerrado = true where id = p_id; exception when undefined_table then null; end;
   end if;
@@ -16142,7 +16144,7 @@ window.redAskOpen=function(){
   o.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
   async function enter(rol){
     stopped=true;say('Entrando…');
-    rol=rol==='alumno'?'alumno':'lectura';
+    rol=(rol==='alumno'||rol==='admin')?rol:'lectura';
     var name='invitado.'+dispId().slice(0,5),us=lsGet(USERS_KEY,[]),acc=us.find(function(x){return x.u===name});
     if(!acc){acc={u:name,s:'',h:'',role:rol,active:true,created:Date.now(),last:null,red:(nm.value||'').slice(0,30)};us.push(acc)}
     else{acc.role=rol;acc.active=true}
@@ -16188,12 +16190,12 @@ function draw(box,mine){
     var who=escapeHtml(r.nombre||'Dispositivo sin nombre');
     if(r.estado==='pendiente'){
       cls=r.misma?'use':'bg';pill=r.misma?'Misma wifi que tú':'Otra red';
-      btns='<select class="adx-red-sel" id="redRol_'+r.id+'" aria-label="Perfil que recibirá"><option value="lectura">Solo lectura</option><option value="alumno">Alumno</option></select>'+
+      btns='<select class="adx-red-sel" id="redRol_'+r.id+'" aria-label="Perfil que recibirá"><option value="lectura">Solo lectura</option><option value="alumno">Alumno</option><option value="admin">Administrador</option></select>'+
         '<button class="adx-btn p" onclick="admRedDo(\''+r.id+'\',\'ok\')">Dar acceso</button><button class="adx-btn g" onclick="admRedDo(\''+r.id+'\',\'no\')">Rechazar</button>';
       txt='<p>Pide acceso '+admAgo(r.hace)+(r.misma?' desde tu misma wifi.':' desde una red distinta de la tuya'+(mine?'.':' (no he podido comprobar tu propia red).'))+'</p>';
     }else if(r.estado==='aprobado'){
       cls='use';pill='Con acceso';
-      btns='<button class="adx-btn d" onclick="admRedDo(\''+r.id+'\',\'no\')">Revocar acceso</button>';
+      btns='<select class="adx-red-sel" aria-label="Cambiar perfil" onchange="admRedRol(\''+r.id+'\',this.value)"><option value="lectura"'+(r.rol==='alumno'||r.rol==='admin'?'':' selected')+'>Solo lectura</option><option value="alumno"'+(r.rol==='alumno'?' selected':'')+'>Alumno</option><option value="admin"'+(r.rol==='admin'?' selected':'')+'>Administrador</option></select><button class="adx-btn d" onclick="admRedDo(\''+r.id+'\',\'no\')">Revocar acceso</button>';
       txt='<p>Perfil: <b>'+escapeHtml(ROLES[r.rol]||r.rol)+'</b> · Caduca el '+fmtDT(r.caduca)+'</p>';
     }else{
       cls='off';pill=r.estado==='caducado'?'Acceso caducado':'Rechazado';
@@ -16202,7 +16204,7 @@ function draw(box,mine){
     }
     return '<article class="adx-dv '+cls+'"><div class="adx-dv-ic">'+ic()+'</div><div><h4>'+who+'</h4>'+txt+'</div><div class="adx-dv-side"><span class="adx-dv-st '+cls+'"><i></i>'+pill+'</span>'+btns+'</div></article>';
   }
-  var head='<h3>Acceso por misma wifi</h3><p class="mut" style="margin:0 0 10px">Quien abra la web y pulse «Pedir acceso» aparece aquí. Te digo si está en tu misma wifi comparando la IP pública con la que sale a Internet (todos los aparatos de una wifi la comparten). La decisión es tuya: tú eliges «Solo lectura» o «Alumno». Nunca se concede perfil de administrador. El acceso dura 30 días y puedes revocarlo cuando quieras.</p><p class="mut" style="margin:0 0 6px">'+(mine?'Tu red actual: <b>reconocida</b>.':'Tu red actual: <b>no he podido comprobarla</b> (¿un bloqueador de anuncios o la red bloquea api.ipify.org?). Las solicitudes se mostrarán como «otra red».')+'</p>';
+  var head='<h3>Acceso por misma wifi</h3><p class="mut" style="margin:0 0 10px">Quien abra la web y pulse «Pedir acceso» aparece aquí. Te digo si está en tu misma wifi comparando la IP pública con la que sale a Internet (todos los aparatos de una wifi la comparten). La decisión es tuya: tú eliges «Solo lectura», «Alumno» o «Administrador» (este último da control total: úsalo solo con tus propios aparatos). El acceso dura 30 días y puedes revocarlo cuando quieras.</p><p class="mut" style="margin:0 0 6px">'+(mine?'Tu red actual: <b>reconocida</b>.':'Tu red actual: <b>no he podido comprobarla</b> (¿un bloqueador de anuncios o la red bloquea api.ipify.org?). Las solicitudes se mostrarán como «otra red».')+'</p>';
   var body=pend.length?'<p class="adx-dv-sum"><b>'+pend.length+'</b> '+(pend.length===1?'solicitud pendiente':'solicitudes pendientes')+'</p>'+pend.map(rowHtml).join(''):'<p class="adx-empty">No hay solicitudes pendientes.</p>';
   var rest=oth.length?'<h3 style="margin-top:18px">Dispositivos con decisión tomada</h3>'+oth.map(rowHtml).join(''):'';
   box.innerHTML=card(head+'<div class="adx-tools"><button class="adx-btn g" onclick="admRedRender()">Actualizar solicitudes</button></div>')+body+rest;
@@ -16218,13 +16220,25 @@ window.admRedRender=async function(){
   rows=(r.data||[]).filter(function(x){return validId(x.id)}).map(function(x){return{id:x.id,nombre:x.nombre,estado:x.estado,rol:x.rol,misma:!!x.misma,creado:new Date(x.creado).getTime(),decidido:x.decidido?new Date(x.decidido).getTime():0,caduca:x.caduca?new Date(x.caduca).getTime():0,hace:+x.hace||0}});
   draw(box,!!mine);
 };
+window.admRedRol=async function(id,rol){
+  var C=nubeCfg();if(!C||!C.user||!validId(id))return;
+  var row=rows.find(function(x){return x.id===id});if(!row||row.estado!=='aprobado')return;
+  rol=(rol==='alumno'||rol==='admin')?rol:'lectura';
+  if(rol===row.rol)return;
+  var nm=row.nombre||'dispositivo';
+  if(!confirm('¿Cambiar el perfil de «'+nm+'» a '+(ROLES[rol]||rol)+'? El acceso se renovará 30 días desde hoy.')){admRedRender();return}
+  var r=await C.sb.rpc('red_decidir',{p_id:id,p_ok:true,p_rol:rol});
+  if(r.error){admSay('No se pudo cambiar el perfil: '+r.error.message);admRedRender();return}
+  admAudit('Perfil de «'+nm+'» cambiado a '+(ROLES[rol]||rol)+'.');admSay('Perfil de «'+nm+'» cambiado a '+(ROLES[rol]||rol)+'.');
+  admRedRender();
+};
 window.admRedDo=async function(id,acc){
   var C=nubeCfg();if(!C||!C.user||!validId(id))return;
   var row=rows.find(function(x){return x.id===id});if(!row)return;
   var nm=row.nombre||'dispositivo',r;
   if(acc==='ok'){
     if(!row.misma&&!confirm('Este dispositivo NO está en tu misma wifi (o no se ha podido comprobar). ¿Le das acceso igualmente?'))return;
-    var sel=$('redRol_'+id),rol=(sel&&sel.value==='alumno')?'alumno':'lectura';
+    var sel=$('redRol_'+id),rol=(sel&&(sel.value==='alumno'||sel.value==='admin'))?sel.value:'lectura';
     r=await C.sb.rpc('red_decidir',{p_id:id,p_ok:true,p_rol:rol});
     if(r.error){admSay('No se pudo dar acceso: '+r.error.message);return}
     admAudit('Acceso por wifi concedido a «'+nm+'» ('+(ROLES[rol]||rol)+').');admSay('Acceso concedido a «'+nm+'». Entrará en unos segundos.');
