@@ -7990,6 +7990,7 @@ function sessionMs(){const c=lsGet(CFG_KEY,{});return (c.dias||7)*24*60*60*1000}
 function applyRole(){
   const u=lsGet(USERS_KEY,[]).find(x=>x.u===currentUser());
   if(!u||u.active===false){handleLogout();setLoginError(u?'Esta cuenta está desactivada. Contacta con el administrador.':'Esta cuenta ya no existe.');return false}
+  if(u.pend&&!u.ver&&u.role!=='admin'){handleLogout();setLoginError('Tu cuenta est\u00e1 pendiente: un administrador debe verificarla antes de que puedas entrar.');return false}
   document.body.setAttribute('data-rol',u.role);
   const n=document.getElementById('navAdmin');if(n)n.style.display=u.role==='admin'?'':'none';
   const b=document.getElementById('roleBadge');if(b){b.textContent=ROLES[u.role]||u.role;b.title='Sesión de '+u.u}
@@ -8000,6 +8001,7 @@ function applyRole(){
 }
 
 async function completeLogin(acc,users,rem){
+    if(acc.pend&&!acc.ver&&acc.role!=='admin'){ setLoginError('Tu cuenta est\u00e1 pendiente: un administrador debe verificarla antes de que puedas entrar.'); return; }
     if(!(await nubeActiva(acc.u))){ setLoginError('Esta cuenta est\u00e1 desactivada. Contacta con el administrador.'); return; }
     nubeReg(acc.u,acc.role);
     try{ dispBeat({login:true,user:acc.u}); }catch(err){}
@@ -8042,8 +8044,13 @@ async function handleLogin(event){
     if(!/^[a-z0-9._-]{3,30}$/i.test(user)){ setLoginError('Elige un usuario de 3 a 30 caracteres, sin espacios ni @.'); return; }
     if(pass.length<8 || pass.toLowerCase()===user){ setLoginError('La contrase\u00f1a debe tener al menos 8 caracteres y ser distinta del usuario.'); return; }
     if(users.some(x=>x.u.toLowerCase()===user)){ setLoginError('Ese usuario ya existe. Elige otro o inicia sesi\u00f3n.'); return; }
-    const salt=newSalt(); users.push({u:user,s:salt,h:await hashPass(pass,salt),role:'alumno',active:true,created:Date.now(),last:null});
+    const salt=newSalt(); users.push({u:user,s:salt,h:await hashPass(pass,salt),role:'alumno',active:true,pend:true,created:Date.now(),last:null});
     lsSet(USERS_KEY,users);
+    try{nubeReg(user,'alumno');}catch(err){}
+    document.getElementById('loginPass').value='';
+    loginSetMode(false);
+    setLoginError('Cuenta creada. Solo falta que un administrador la verifique; cuando lo haga podr\u00e1s entrar.');
+    return;
   }
   const acc = users.find(x=>x.u.toLowerCase()===user || (x.email && x.email.toLowerCase()===user));
   const ok = acc && acc.active!==false && (await hashPass(pass,acc.s))===acc.h;
@@ -9710,9 +9717,9 @@ async function renderAdminView(c){
 }
 function admVerificado(x){return x.role==='admin'||!!x.ver}
 async function admVerify(i){const u=await getUsers(),x=u[i];if(!x||x.role==='admin')return;
-  if(x.ver){if(!confirm('¿Quitar la verificación de "'+x.u+'"?'))return;delete x.ver;return admSave(u,'Verificación retirada: '+x.u+'.')}
+  if(x.ver){if(!confirm('¿Quitar la verificación de "'+x.u+'"?'))return;delete x.ver;if(x.role!=='admin')x.pend=true;return admSave(u,'Verificación retirada: '+x.u+'.')}
   if(!confirm('¿Has comprobado que "'+x.u+'"'+(x.email?' ('+x.email+')':'')+' es quien dice ser?'))return;
-  x.ver={t:Date.now(),by:currentUser()};admSave(u,'Usuario verificado: '+x.u+'.')}
+  x.ver={t:Date.now(),by:currentUser()};delete x.pend;admSave(u,'Usuario verificado: '+x.u+'.')}
 function admVerPend(){admGo('usuarios');admChip('pend')}
 function nAdmins(u){return u.filter(x=>x.role==='admin'&&x.active!==false).length}
 async function admSave(u,m){lsSet(USERS_KEY,u);applyRole();if(m)admAudit(m);admSay(m||'')}
@@ -10314,7 +10321,7 @@ addEventListener('keydown',function(e){
       }
       if(!acc){
         var em=isAdm?SSO_ADMIN:ems[0];
-        acc={u:em,email:em,s:'',h:'',role:isAdm?'admin':'alumno',active:true,created:Date.now(),last:null,sso:true};
+        acc={u:em,email:em,s:'',h:'',role:isAdm?'admin':'alumno',active:true,pend:!isAdm,created:Date.now(),last:null,sso:true};
         users.push(acc);
       }
     }else if(isAdm&&acc.role!=='admin'){acc.role='admin';}
