@@ -3211,7 +3211,7 @@ html[data-theme="dark"],html[data-theme="dark"] body{background-color:#121212}
       <div class="calendar-grid" id="calendarGrid"></div>
       <div class="cal-size" role="group" aria-label="Tamaño del calendario"><button type="button" id="calSizeSmall" aria-pressed="false" onclick="setCalSize('small')" title="Solo la semana seleccionada">Pequeña</button><button type="button" id="calSizeFull" aria-pressed="true" onclick="setCalSize('full')" title="El mes completo">Completa</button></div>
       <details class="sb-legend">
-        <summary>Leyenda de puntos y subrayados</summary>
+        <summary>Leyenda</summary>
         <ul>
           <li><i class="lg lg-note"></i>Punto dorado: nota escrita en tu diario</li>
           <li><i class="lg lg-user"></i>Punto morado: evento tuyo (examen, entrega…)</li>
@@ -3220,7 +3220,7 @@ html[data-theme="dark"],html[data-theme="dark"] body{background-color:#121212}
           <li><i class="lg lg-today"></i>Cuadro oscuro: hoy</li>
           <li><i class="lg lg-sel"></i>Cuadro azul: día seleccionado</li>
         </ul>
-        <p class="lg-tip">Pasa el ratón por un día para ver su resumen.</p>
+        <p class="lg-tip">Toca (o pasa el ratón por) un día para ver su resumen.</p>
       </details>
     </div>
 
@@ -17711,7 +17711,7 @@ body.dys .att .nt-text code,body.dys .att .nt-text pre,body.dys .att .nt-text pr
 .sidebar .calendar-grid .day.cal-off{display:none}
 #miniCal[data-size="small"] .calendar-controls{margin-bottom:4px}
 #miniCal[data-size="small"] .calendar-grid .day{padding:8px 0}
-#miniCal[data-size="small"] .sb-legend{display:none}
+#miniCal[data-size="small"] .sb-legend{display:block}
 #miniCal[data-size="full"] .calendar-grid .day{padding:6px 0}
 /* el título del mes ya no se corta («Octubre 202…») */
 .sidebar .calendar-controls .cal-title{min-width:0;padding:0 2px;font-size:0.875rem;overflow:hidden;text-overflow:ellipsis}
@@ -24693,4 +24693,173 @@ html:not([data-theme="dark"]) body .sidebar .sidebar-nav>a[aria-current="page"]:
 .sidebar-nav .nav-more a[onclick*="dawAppleExport"]::before{content:"";-webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='1'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M21%203L3%2011l7%203%203%207zM10%2014L21%203'/%3E%3C/svg%3E")%20center/contain%20no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='1'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M21%203L3%2011l7%203%203%207zM10%2014L21%203'/%3E%3C/svg%3E")%20center/contain%20no-repeat}
 .sidebar-nav #navAdmin::before{content:"";-webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='1'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M12%203l8%203v6c0%205-3.5%208-8%209-4.5-1-8-4-8-9V6zM9%2012l2%202%204-4'/%3E%3C/svg%3E")%20center/contain%20no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='1'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M12%203l8%203v6c0%205-3.5%208-8%209-4.5-1-8-4-8-9V6zM9%2012l2%202%204-4'/%3E%3C/svg%3E")%20center/contain%20no-repeat}
 .sidebar-nav #navAssistant,.sidebar-nav #navAdmin,.sidebar-nav .nav-more a[onclick*="dawAppleExport"]{display:flex;align-items:center}
+
+/* ===== Móvil: calendario y pantalla sin desbordes ===== */
+@media (max-width:700px){
+  html,body{max-width:100%;overflow-x:hidden}
+  img,video,canvas,svg,table{max-width:100%}
+  body .sidebar .mini-calendar{padding:10px 4px 8px!important}
+  body .sidebar .calendar-controls{grid-template-columns:44px 1fr 44px auto!important;gap:6px!important;margin-bottom:10px!important}
+  body .sidebar .calendar-controls button{min-height:44px!important;font-size:1rem!important}
+  body .sidebar .calendar-controls .cal-title{font-size:1.1rem!important}
+  body .sidebar .calendar-controls .cal-today{font-size:.875rem!important;padding:0 14px!important;min-height:40px!important}
+  body .sidebar .calendar-grid{row-gap:4px!important}
+  body .sidebar .calendar-grid .day-name{font-size:.8rem!important;padding:4px 0 6px!important;opacity:1!important;color:#5f6b66!important;font-weight:700!important}
+  body .sidebar .calendar-grid .day{font-size:1.05rem!important;min-height:44px;padding:10px 0 12px!important;display:flex;align-items:center;justify-content:center;box-sizing:border-box;touch-action:manipulation}
+  body .sidebar .calendar-grid .day.has-note::after,body .sidebar .calendar-grid .day.has-user::before{bottom:5px!important;width:6px!important;height:6px!important}
+  body .sidebar .calendar-grid .day.has-user::before{left:calc(50% + 7px)!important}
+  body .sidebar .cal-size{margin-top:12px!important}
+  body .sidebar .cal-size button{min-height:44px!important;font-size:.95rem!important}
+  body .sidebar .cal-picker select{min-height:44px;font-size:1rem}
+  body .sidebar .sb-legend summary{min-height:44px;display:flex;align-items:center}
+}
+
+/* ===== Móvil: barra inferior en una sola fila (5 accesos) ===== */
+@media (max-width:700px){
+  body .sidebar-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-auto-rows:auto}
+  body .sidebar-nav #navDiaryQuick,body .sidebar-nav #navNotesQuick{display:none!important}
+  body .sidebar-nav>a{min-height:58px;padding:6px 2px;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+}
+
+/* ===== Móvil: ocupar todo el ancho (sin huecos en blanco) ===== */
+@media (max-width:700px){
+  body .sidebar{align-items:stretch!important}
+  body .sidebar>*{width:100%!important;max-width:100%!important;box-sizing:border-box;align-self:stretch!important}
+  body .sidebar .mini-calendar,body .sidebar #miniCal{width:100%!important;flex:0 0 auto!important}
+  body .sidebar .calendar-grid{grid-template-columns:repeat(7,minmax(0,1fr))!important;width:100%}
+  body .sidebar .cal-size{width:100%;box-sizing:border-box}
+  body .sidebar .calendar-controls{width:100%}
+}
+
+/* ===== Leyenda discreta del calendario ===== */
+body .sidebar .sb-legend{margin-top:6px;padding-top:0;border-top:0;opacity:.85}
+body .sidebar .sb-legend summary{justify-content:flex-start;gap:6px;font-weight:500;font-size:.72rem;color:#8a948f;letter-spacing:.04em;padding:4px 2px;min-height:0}
+body .sidebar .sb-legend summary::before{content:"i";display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border:1px solid currentColor;border-radius:50%;font-size:.6rem;font-style:italic;font-weight:600;line-height:1}
+body .sidebar .sb-legend summary::after{content:"\25BE";font-size:.65rem;margin-left:auto}
+body .sidebar .sb-legend[open] summary::after{content:"\25B4"}
+body .sidebar .sb-legend[open]{padding:6px 8px 8px;border:1px solid var(--sb-line,#e8e3d6);border-radius:10px;background:rgba(255,255,255,.55);opacity:1}
+body .sidebar .sb-legend li{font-size:.75rem;color:#5d6a62}
+@media (max-width:700px){body .sidebar .sb-legend summary{min-height:36px!important}}
+
+/* ===== Móvil: «Ahora / Luego» y acciones más grandes ===== */
+@media (max-width:700px){
+  html:not([data-theme="dark"]) body .sidebar .now-card,body .sidebar .now-card{padding:6px 0 6px 16px!important;display:flex;flex-direction:column;gap:8px;width:100%;text-align:left}
+  html:not([data-theme="dark"]) body .sidebar .now-k,body .sidebar .now-k{font-size:.8rem!important;letter-spacing:.1em}
+  body .sidebar .now-row{font-size:1.1rem!important;line-height:1.35;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+  body .sidebar .now-k{min-width:64px}
+  body .sidebar .live-clock-time{font-size:1.9rem}
+  body .sidebar .live-clock-date{font-size:.95rem}
+  body .sidebar .sb-actions{gap:10px!important;margin:6px 0 16px!important}
+  body .sidebar .sb-actions .btn-add-event{min-height:52px!important;font-size:1.05rem!important;padding:0 18px!important;gap:10px;display:inline-flex;align-items:center;justify-content:center}
+  body .sidebar .sb-actions .btn-add-event svg{width:20px;height:20px}
+}
+
+/* ===== Móvil: Evento / Pausa como botones grandes ===== */
+@media (max-width:700px){
+  html:not([data-theme="dark"]) body .sidebar .sb-actions{display:grid!important;grid-template-columns:1fr 1fr!important;flex-direction:row!important;padding:0!important;border:0!important;gap:10px!important;width:100%!important;margin:8px 0 18px!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event{width:100%!important;min-height:56px!important;font-size:1.15rem!important;font-weight:600!important;padding:0 12px!important;display:flex!important;align-items:center;justify-content:center;gap:10px;border:1px solid #d9d2bf!important;border-radius:14px!important;background:#ffffff!important;color:#1f3d33!important;box-shadow:0 1px 3px rgba(31,61,51,.08)}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event svg{width:22px!important;height:22px!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event:first-child{background:#2f5d4b!important;border-color:#2f5d4b!important;color:#fff!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event.btn-add-pausa{color:#1f3d33!important;background:#fff!important;flex:1 1 0!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event .sb-btn-ic{color:inherit!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event:first-child .sb-btn-ic{color:#fff!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event:active{transform:scale(.98)}
+}
+
+/* ===== Móvil: pestañas académicas en una sola línea ===== */
+@media (max-width:700px){
+  html body .ac-nav:not(:has(details[open])){flex-wrap:nowrap!important;gap:4px!important;align-items:center;justify-content:space-between!important;padding-bottom:10px!important}
+  html body .ac .ac-nav>button{flex:1 1 0!important;min-width:0;padding:10px 4px!important;min-height:44px!important;font-size:.95rem!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  html body .ac-nav .study-nav{flex:0 0 auto!important}
+  html body .ac-nav .study-nav>summary{font-size:.95rem!important;padding:12px 10px!important;min-height:20px;white-space:nowrap;font-weight:500}
+}
+
+/* ===== Móvil: pestañas con la tipografía de «AHORA / LUEGO» ===== */
+@media (max-width:700px){
+  html body .ac .ac-nav>button,html body .ac-nav .study-nav>summary{font-size:.74rem!important;font-weight:600!important;text-transform:uppercase;letter-spacing:.07em!important;color:#a88b4a!important;padding-left:2px!important;padding-right:2px!important;border-radius:0!important;background:transparent!important;border-bottom:2px solid transparent!important}
+  html body .ac .ac-nav>button[aria-current=page]{color:#1f3d33!important;border-bottom-color:#a88b4a!important;background:transparent!important}
+  html body .ac-nav .study-nav>summary{padding:12px 2px!important}
+}
+
+/* ===== Móvil: pestañas (tipografía AHORA/LUEGO, una línea) — v2 ===== */
+@media (max-width:700px){
+  html body .ac nav.ac-nav:not(:has(details[open])){flex-wrap:nowrap!important;gap:0 6px!important;justify-content:space-between!important;align-items:flex-end}
+  html body .ac nav.ac-nav>button,html body .ac nav.ac-nav .more-nav>summary{flex:0 0 auto!important;font-size:.76rem!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:.08em!important;color:#a88b4a!important;padding:12px 2px 12px!important;white-space:nowrap}
+  html body .ac nav.ac-nav>button[aria-current=page],html body .ac nav.ac-nav .more-nav.has-current>summary{color:#1f3d33!important;font-weight:700!important;border-bottom:2px solid #a88b4a!important}
+  html body .ac nav.ac-nav .more-nav:not([open]){flex:0 0 auto!important;flex-basis:auto!important}
+}
+
+/* ===== Móvil: Evento / Pausa minimalistas ===== */
+@media (max-width:700px){
+  html:not([data-theme="dark"]) body .sidebar .sb-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:0!important;margin:4px 0 14px!important;padding:0!important;border:0!important;border-top:1px solid #ece7da!important;border-bottom:1px solid #ece7da!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event,html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event.btn-add-pausa{min-height:48px!important;font-size:.8rem!important;font-weight:600!important;letter-spacing:.1em!important;text-transform:uppercase;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#1f3d33!important;justify-content:center!important;gap:8px!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event:first-child{background:transparent!important;color:#1f3d33!important;border-right:1px solid #ece7da!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event.btn-add-pausa{color:#7b8580!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event svg{width:16px!important;height:16px!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event .sb-btn-ic,html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event:first-child .sb-btn-ic{color:#a88b4a!important;background:transparent!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event:active{background:#faf8f2!important;transform:none}
+}
+
+/* ===== Móvil: acabado visual del bloque Ahora / acciones / pestañas ===== */
+@media (max-width:700px){
+  html:not([data-theme="dark"]) body .sidebar .now-card,html:not([data-theme="dark"]) body .sidebar .now-card.is-live{background:linear-gradient(135deg,#fbf9f4,#f4f0e4)!important;border:1px solid #e6dfcc!important;border-left:4px solid #a88b4a!important;border-radius:14px!important;padding:14px 16px!important;gap:10px!important;box-shadow:0 1px 2px rgba(31,61,51,.05)!important}
+  html:not([data-theme="dark"]) body .sidebar .now-card .now-row{align-items:center!important}
+  html:not([data-theme="dark"]) body .sidebar .now-card .now-k{min-width:58px!important;font-size:.7rem!important}
+  html:not([data-theme="dark"]) body .sidebar .now-card #nowCurRow .now-k::before{content:"";display:inline-block;width:7px;height:7px;margin-right:7px;border-radius:50%;background:#2f8f5b;box-shadow:0 0 0 3px rgba(47,143,91,.18);vertical-align:1px}
+  html:not([data-theme="dark"]) body .sidebar .now-card .now-v{font-size:1.05rem!important;color:#1f2d3a}
+  html:not([data-theme="dark"]) body .sidebar .now-card #nowNextRow .now-v{color:#5d6a62}
+  html:not([data-theme="dark"]) body .sidebar .sb-now{margin-bottom:12px!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions{background:#fff!important;border:1px solid #e6dfcc!important;border-radius:14px!important;overflow:hidden;margin:0 0 6px!important;box-shadow:0 1px 2px rgba(31,61,51,.04)}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event,html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event.btn-add-pausa{min-height:50px!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event:first-child{border-right:1px solid #ece7da!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions .btn-add-event:active{background:#f4f0e4!important}
+  html body .ac nav.ac-nav{margin-top:4px!important}
+}
+@media (max-width:700px){ html:not([data-theme="dark"]) body .sidebar .sb-actions{border-top:1px solid #e6dfcc!important;border-bottom:1px solid #e6dfcc!important} }
+
+@media (max-width:700px){
+  html:not([data-theme="dark"]) body .sidebar .now-card .now-k{display:inline-flex!important;align-items:center}
+  html body .main-container{gap:8px!important}
+  html body .sidebar{padding-bottom:0!important;margin-bottom:0!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions{margin-bottom:0!important}
+}
+
+@media (max-width:700px){
+  html:not([data-theme="dark"]) body .sidebar .now-card #nowCurRow .now-k::before{flex:none!important;width:7px!important;height:7px!important;min-width:7px}
+  html:not([data-theme="dark"]) body .sidebar .now-card .now-k{min-width:76px!important;white-space:nowrap}
+  html:not([data-theme="dark"]) body .sidebar .now-card #nowNextRow .now-k{padding-left:14px!important;box-sizing:border-box}
+}
+
+/* ===== Icono de «Más» (cuadrícula, claro y visible) ===== */
+html body .sidebar-nav #navMoreBtn::before{content:""!important;display:block;flex:none;width:18px!important;height:18px!important;opacity:.85!important;background:currentColor!important;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linejoin='round'%3E%3Crect x='4' y='4' width='6.5' height='6.5' rx='1.6'/%3E%3Crect x='13.5' y='4' width='6.5' height='6.5' rx='1.6'/%3E%3Crect x='4' y='13.5' width='6.5' height='6.5' rx='1.6'/%3E%3Crect x='13.5' y='13.5' width='6.5' height='6.5' rx='1.6'/%3E%3C/svg%3E") center/contain no-repeat!important;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linejoin='round'%3E%3Crect x='4' y='4' width='6.5' height='6.5' rx='1.6'/%3E%3Crect x='13.5' y='4' width='6.5' height='6.5' rx='1.6'/%3E%3Crect x='4' y='13.5' width='6.5' height='6.5' rx='1.6'/%3E%3Crect x='13.5' y='13.5' width='6.5' height='6.5' rx='1.6'/%3E%3C/svg%3E") center/contain no-repeat!important}
+@media (max-width:700px){ html body .sidebar-nav>a#navMoreBtn{flex-direction:column!important;align-items:center;justify-content:center;gap:14px} html body .sidebar-nav>a#navMoreBtn .nav-caret{display:none} }
+
+/* ===== Sin sombreado en Ahora / Luego y acciones ===== */
+html:not([data-theme="dark"]) body .sidebar .now-card,html:not([data-theme="dark"]) body .sidebar .now-card.is-live,html:not([data-theme="dark"]) body .sidebar .now-card:hover,html:not([data-theme="dark"]) body .sidebar .sb-actions{background:#ffffff!important;background-image:none!important;box-shadow:none!important}
+html:not([data-theme="dark"]) body .sidebar .now-card #nowCurRow .now-k::before{box-shadow:none!important}
+
+/* ===== Móvil: espacios iguales (12px) entre bloques ===== */
+@media (max-width:700px){
+  html body .sidebar{display:flex!important;flex-direction:column!important;gap:12px!important;padding:0!important;margin:0!important}
+  html body .sidebar>*{margin-top:0!important;margin-bottom:0!important}
+  html body .main-container{gap:12px!important}
+  html:not([data-theme="dark"]) body .sidebar .mini-calendar,html:not([data-theme="dark"]) body .sidebar #miniCal{padding:0!important;display:flex!important;flex-direction:column!important;gap:12px!important}
+  html:not([data-theme="dark"]) body .sidebar .mini-calendar:not(.open){display:none!important}
+  html:not([data-theme="dark"]) body .sidebar .mini-calendar>*{margin:0!important}
+  html:not([data-theme="dark"]) body .sidebar .mini-calendar .calendar-controls,html:not([data-theme="dark"]) body .sidebar .mini-calendar .cal-size{margin:0!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-legend{margin:0!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-now{display:flex!important;flex-direction:column;gap:12px!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-now>*{margin:0!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-actions{margin:0!important;padding:0!important}
+  html body .ac nav.ac-nav{margin:0!important}
+}
+
+@media (max-width:700px){
+  html:not([data-theme="dark"]) body .sidebar>*{margin-top:0!important;margin-bottom:0!important}
+  html:not([data-theme="dark"]) body .sidebar .sb-now{margin:0!important}
+}
+
+@media (max-width:700px){ html body #sbNow{margin:0!important} }
+
+@media (max-width:700px){ html body .ac{padding-top:0!important} html body .ac nav.ac-nav{margin-bottom:12px!important} }
 </style>
